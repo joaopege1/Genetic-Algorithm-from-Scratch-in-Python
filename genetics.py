@@ -77,15 +77,15 @@ def mutation(genome: Genome, num int = 1, probability: float = 0.5) -> Genome:
     return genome
 
 def run_evolution(
-    populate_func: PopulateFunc,
-    fitness_func: FitnessFunc,
-    fitness_limit: int,
-    selection_func: SelectionFunc = selection_pair,
-    crossover_func: CrossoverFunc = single_point_crossover,
-    mutation_func: MutationFunc = mutation,
-    generation_limit: int = 100
-) -> Tuple[Population, int]:
-
+        populate_func: PopulateFunc,
+        fitness_func: FitnessFunc,
+        fitness_limit: int,
+        selection_func: SelectionFunc = selection_pair,
+        crossover_func: CrossoverFunc = single_point_crossover,
+        mutation_func: MutationFunc = mutation,
+        generation_limit: int = 100,
+        printer: Optional[PrinterFunc] = None) \
+        -> Tuple[Population, int]:
     population = populate_func()
     
     for i in range(generation_limit):
@@ -100,23 +100,18 @@ def run_evolution(
 
         next_generation = population[0:2]
 
-        for j in range(int(len(population) / 2) -1):
+         for j in range(int(len(population) / 2) - 1):
             parents = selection_func(population, fitness_func)
             offspring_a, offspring_b = crossover_func(parents[0], parents[1])
             offspring_a = mutation_func(offspring_a)
             offspring_b = mutation_func(offspring_b)
-            next_generation += [offspring_a,offspring_b]
+            next_generation += [offspring_a, offspring_b]
 
         population = next_generation
 
-    population = sorted(
-        population,
-        key=lambda genome: fitness_func(genome),
-        reverse=True
-    )
-
     return population, i
 
+    start = time.time()
     popoulation, generations = run_evolution(
         populate_func=partial(
             generate_population, size=10, genome_lenght=len(things)
@@ -127,7 +122,9 @@ def run_evolution(
         fitness_limit=740,
         generation_limit=100
     )
+    end = time.time()
 
-    print(f"number of generations" {generations}")
-    print(f"number of generations" {genome_to_things(population[0], things)}")
+    print(f"number of generations: " {generations}")
+    print(f"time" {end - start}s")
+    print(f"best solution: " {genome_to_things(population[0], things)}")
     
